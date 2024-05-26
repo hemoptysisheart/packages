@@ -1,0 +1,44 @@
+name: Android library
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Select library version.'
+        type: string
+        required: true
+      build:
+        description: 'Select build number.'
+        type: number
+        required: true
+jobs:
+  build:
+    name: Publish Android libraries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: hemoptysisheart/android-library
+          ref: build/${{ inputs.build }}
+          path: android-library
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Load CI cache.
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/**
+            .gradle/**
+            android-library/.gradle/**
+          key: ci-cache-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      - uses: gradle/actions/setup-gradle@v3
+      - name: Build & Publish
+        run: |
+          cd android-library
+          echo "publish.version=${{ inputs.version }}" >> ./local.properties
+          cat ./local.properties
+          ./gradlew clean publishAllPublicationsToGitHubPackagesRepository
