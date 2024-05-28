@@ -36,11 +36,18 @@ jobs:
             android-library/.gradle/**
           key: ci-cache-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
       - uses: gradle/actions/setup-gradle@v3
-      - name: Build & Publish
+      - name: Prepare Build
         run: |
           cd android-library
           echo "publish.enable=true" > ./local.properties
           echo "publish.version=${{ inputs.version }}" >> ./local.properties
           echo "publish.user=${{ github.actor }}" >> ./local.properties
           echo "publish.token=${{ secrets.PUBLISH_TOKEN }}" >> ./local.properties
-          ./gradlew clean publishAllPublicationsToGitHubPackagesRepository
+          ./gradlew clean
+      - name: Build & Publish
+        run: |
+          ./gradlew :ui-state:publishGitHubPackagesPublicationToGitHubPackagesRepository
+          ./gradlew :ui-compose:publishGitHubPackagesPublicationToGitHubPackagesRepository
+          ./gradlew :state-pump:publishGitHubPackagesPublicationToGitHubPackagesRepository
+          ./gradlew :viewmodel:publishGitHubPackagesPublicationToGitHubPackagesRepository
+          ./gradlew :ui-navigation:publishGitHubPackagesPublicationToGitHubPackagesRepository
