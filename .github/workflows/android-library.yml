@@ -39,8 +39,8 @@ jobs:
       - name: Build & Publish
         run: |
           cd android-library
+          echo "publish.enable=true" > ./local.properties
           echo "publish.version=${{ inputs.version }}" >> ./local.properties
           echo "publish.user=${{ github.actor }}" >> ./local.properties
           echo "publish.token=${{ secrets.PUBLISH_TOKEN }}" >> ./local.properties
-          cat ./local.properties
           ./gradlew clean publishAllPublicationsToGitHubPackagesRepository
